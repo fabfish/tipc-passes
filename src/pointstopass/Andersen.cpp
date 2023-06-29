@@ -22,7 +22,9 @@ bool isAllocI(Instruction *I)
  */
 bool PTVisitor::visitAllocaInst(AllocaInst &AI)
 {
-  return false;
+  Alloc_I *obj = context->findAllocI(&AI);
+  PointsTo *valPT = context->findValueI(&AI)->getPointsToSet();
+  return valPT->insert(obj);
 }
 
 /**
