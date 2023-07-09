@@ -1,0 +1,58 @@
+*** Andersen points-to analysis for function define i64 @_tip_main() {
+entry:
+  %d2 = alloca i64, align 8
+  %d1 = alloca i64, align 8
+  %c2 = alloca i64, align 8
+  %c1 = alloca i64, align 8
+  %b2 = alloca i64, align 8
+  %b1 = alloca i64, align 8
+  %a2 = alloca i64, align 8
+  %a1 = alloca i64, align 8
+  store i64 0, i64* %a1, align 4
+  store i64 0, i64* %a2, align 4
+  store i64 0, i64* %b1, align 4
+  store i64 0, i64* %b2, align 4
+  store i64 0, i64* %c1, align 4
+  store i64 0, i64* %c2, align 4
+  store i64 0, i64* %d1, align 4
+  store i64 0, i64* %d2, align 4
+  %addrOfPtr = ptrtoint i64* %b1 to i64
+  store i64 %addrOfPtr, i64* %a1, align 4
+  %addrOfPtr1 = ptrtoint i64* %c1 to i64
+  store i64 %addrOfPtr1, i64* %b1, align 4
+  %addrOfPtr2 = ptrtoint i64* %d1 to i64
+  store i64 %addrOfPtr2, i64* %c1, align 4
+  %addrOfPtr3 = ptrtoint i64* %b2 to i64
+  store i64 %addrOfPtr3, i64* %a2, align 4
+  %addrOfPtr4 = ptrtoint i64* %c2 to i64
+  store i64 %addrOfPtr4, i64* %b2, align 4
+  %addrOfPtr5 = ptrtoint i64* %d2 to i64
+  store i64 %addrOfPtr5, i64* %c2, align 4
+  %addrOfPtr6 = ptrtoint i64* %c2 to i64
+  store i64 %addrOfPtr6, i64* %b1, align 4
+  ret i64 0
+}
+ ***
+  %a2 = alloca i64, align 8 = {[a2], }
+  %addrOfPtr1 = ptrtoint i64* %c1 to i64 = {[c1], }
+  %addrOfPtr5 = ptrtoint i64* %d2 to i64 = {[d2], }
+  %addrOfPtr2 = ptrtoint i64* %d1 to i64 = {[d1], }
+  %d2 = alloca i64, align 8 = {[d2], }
+  %addrOfPtr6 = ptrtoint i64* %c2 to i64 = {[c2], }
+  %d1 = alloca i64, align 8 = {[d1], }
+  %c1 = alloca i64, align 8 = {[c1], }
+  %addrOfPtr3 = ptrtoint i64* %b2 to i64 = {[b2], }
+  %c2 = alloca i64, align 8 = {[c2], }
+  %b2 = alloca i64, align 8 = {[b2], }
+  %a1 = alloca i64, align 8 = {[a1], }
+  %addrOfPtr = ptrtoint i64* %b1 to i64 = {[b1], }
+  %b1 = alloca i64, align 8 = {[b1], }
+  %addrOfPtr4 = ptrtoint i64* %c2 to i64 = {[c2], }
+[  %a2 = alloca i64, align 8] = {[b2], }
+[  %d2 = alloca i64, align 8] = {}
+[  %d1 = alloca i64, align 8] = {}
+[  %c1 = alloca i64, align 8] = {[d1], }
+[  %c2 = alloca i64, align 8] = {[d2], }
+[  %b2 = alloca i64, align 8] = {[c2], }
+[  %a1 = alloca i64, align 8] = {[b1], }
+[  %b1 = alloca i64, align 8] = {[c1], [c2], }

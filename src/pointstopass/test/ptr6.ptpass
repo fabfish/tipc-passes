@@ -1,0 +1,111 @@
+*** Andersen points-to analysis for function define i64 @_tip_main() {
+entry:
+  %w = alloca i64, align 8
+  %v = alloca i64, align 8
+  %s = alloca i64, align 8
+  %l = alloca i64, align 8
+  %d2 = alloca i64, align 8
+  %d1 = alloca i64, align 8
+  %z = alloca i64, align 8
+  %y = alloca i64, align 8
+  %x = alloca i64, align 8
+  %q = alloca i64, align 8
+  %p = alloca i64, align 8
+  store i64 0, i64* %p, align 4
+  store i64 0, i64* %q, align 4
+  store i64 0, i64* %x, align 4
+  store i64 0, i64* %y, align 4
+  store i64 0, i64* %z, align 4
+  store i64 0, i64* %d1, align 4
+  store i64 0, i64* %d2, align 4
+  store i64 0, i64* %l, align 4
+  store i64 0, i64* %s, align 4
+  store i64 0, i64* %v, align 4
+  store i64 0, i64* %w, align 4
+  %allocPtr = call i8* @calloc(i64 1, i64 8)
+  %castPtr = bitcast i8* %allocPtr to i64*
+  store i64 0, i64* %castPtr, align 4
+  %allocIntVal = ptrtoint i64* %castPtr to i64
+  store i64 %allocIntVal, i64* %p, align 4
+  %allocPtr1 = call i8* @calloc(i64 1, i64 8)
+  %castPtr2 = bitcast i8* %allocPtr1 to i64*
+  store i64 0, i64* %castPtr2, align 4
+  %allocIntVal3 = ptrtoint i64* %castPtr2 to i64
+  store i64 %allocIntVal3, i64* %l, align 4
+  %y4 = load i64, i64* %y, align 4
+  store i64 %y4, i64* %x, align 4
+  %z5 = load i64, i64* %z, align 4
+  store i64 %z5, i64* %x, align 4
+  %p6 = load i64, i64* %p, align 4
+  %ptrIntVal = inttoptr i64 %p6 to i64*
+  %z7 = load i64, i64* %z, align 4
+  store i64 %z7, i64* %ptrIntVal, align 4
+  %q8 = load i64, i64* %q, align 4
+  store i64 %q8, i64* %p, align 4
+  %addrOfPtr = ptrtoint i64* %y to i64
+  store i64 %addrOfPtr, i64* %q, align 4
+  %p9 = load i64, i64* %p, align 4
+  %ptrIntVal10 = inttoptr i64 %p9 to i64*
+  %valueAt = load i64, i64* %ptrIntVal10, align 4
+  store i64 %valueAt, i64* %x, align 4
+  %addrOfPtr11 = ptrtoint i64* %z to i64
+  store i64 %addrOfPtr11, i64* %p, align 4
+  %l12 = load i64, i64* %l, align 4
+  store i64 %l12, i64* %d1, align 4
+  %l13 = load i64, i64* %l, align 4
+  store i64 %l13, i64* %d2, align 4
+  %addrOfPtr14 = ptrtoint i64* %d1 to i64
+  store i64 %addrOfPtr14, i64* %s, align 4
+  %addrOfPtr15 = ptrtoint i64* %d2 to i64
+  store i64 %addrOfPtr15, i64* %v, align 4
+  %addrOfPtr16 = ptrtoint i64* %d2 to i64
+  store i64 %addrOfPtr16, i64* %w, align 4
+  ret i64 0
+}
+ ***
+  %p6 = load i64, i64* %p, align 4 = {[allocPtr], }
+  %castPtr2 = bitcast i8* %allocPtr1 to i64* = {[allocPtr1], }
+  %addrOfPtr16 = ptrtoint i64* %d2 to i64 = {[d2], }
+  %q = alloca i64, align 8 = {[q], }
+  %ptrIntVal = inttoptr i64 %p6 to i64* = {[allocPtr], }
+  %addrOfPtr = ptrtoint i64* %y to i64 = {[y], }
+  %allocPtr1 = call i8* @calloc(i64 1, i64 8) = {[allocPtr1], }
+  %x = alloca i64, align 8 = {[x], }
+  %l12 = load i64, i64* %l, align 4 = {[allocPtr1], }
+  %z5 = load i64, i64* %z, align 4 = {}
+  %l = alloca i64, align 8 = {[l], }
+  %y = alloca i64, align 8 = {[y], }
+  %d1 = alloca i64, align 8 = {[d1], }
+  %p9 = load i64, i64* %p, align 4 = {[allocPtr], }
+  %l13 = load i64, i64* %l, align 4 = {[allocPtr1], }
+  %z = alloca i64, align 8 = {[z], }
+  %d2 = alloca i64, align 8 = {[d2], }
+  %allocIntVal = ptrtoint i64* %castPtr to i64 = {[allocPtr], }
+  %y4 = load i64, i64* %y, align 4 = {}
+  %ptrIntVal10 = inttoptr i64 %p9 to i64* = {[allocPtr], }
+  %v = alloca i64, align 8 = {[v], }
+  %s = alloca i64, align 8 = {[s], }
+  %w = alloca i64, align 8 = {[w], }
+  %castPtr = bitcast i8* %allocPtr to i64* = {[allocPtr], }
+  %z7 = load i64, i64* %z, align 4 = {}
+  %allocIntVal3 = ptrtoint i64* %castPtr2 to i64 = {[allocPtr1], }
+  %valueAt = load i64, i64* %ptrIntVal10, align 4 = {}
+  %addrOfPtr14 = ptrtoint i64* %d1 to i64 = {[d1], }
+  %allocPtr = call i8* @calloc(i64 1, i64 8) = {[allocPtr], }
+  %p = alloca i64, align 8 = {[p], }
+  %addrOfPtr15 = ptrtoint i64* %d2 to i64 = {[d2], }
+  %q8 = load i64, i64* %q, align 4 = {}
+  %addrOfPtr11 = ptrtoint i64* %z to i64 = {[z], }
+[  %q = alloca i64, align 8] = {[y], }
+[  %allocPtr1 = call i8* @calloc(i64 1, i64 8)] = {}
+[  %x = alloca i64, align 8] = {}
+[  %l = alloca i64, align 8] = {[allocPtr1], }
+[  %y = alloca i64, align 8] = {}
+[  %d1 = alloca i64, align 8] = {[allocPtr1], }
+[  %z = alloca i64, align 8] = {}
+[  %d2 = alloca i64, align 8] = {[allocPtr1], }
+[  %v = alloca i64, align 8] = {[d2], }
+[  %s = alloca i64, align 8] = {[d1], }
+[  %w = alloca i64, align 8] = {[d2], }
+[  %allocPtr = call i8* @calloc(i64 1, i64 8)] = {}
+[  %p = alloca i64, align 8] = {[z], [allocPtr], }

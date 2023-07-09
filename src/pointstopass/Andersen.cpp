@@ -38,20 +38,19 @@ bool PTVisitor::visitAllocaInst(AllocaInst &AI)
 bool PTVisitor::visitCastInst(CastInst &CI)
 {
   // 获取转换前后的值
-  Value *src = CI.getOperand(0);
-  Value *dst = &CI;
+  Value_I *src = context->findValueI(CI.getOperand(0));
+  Value_I *dst = context->findValueI(&CI);
 
   // 如果是指针类型的转换
-  if (src->getType()->isPointerTy() && dst->getType()->isPointerTy())
-  {
-    // 获取转换前后的指针
-    Pointer *srcPtr = getOrCreatePointer(src);
-    Pointer *dstPtr = getOrCreatePointer(dst);
-
-    // 将它们加入到相同的指向集合中
-    unionPointsToSet(srcPtr, dstPtr);
+  if (!src || !dst) {
+    return false;
   }
-
+  else {
+    // 获取转换前后的指针
+    PointsTo *srcPtr = src->getPointsToSet();
+    PointsTo *dstPtr = dst->getPointsToSet();
+    return dstPtr->unionSets(srcPtr);
+  }
   return false;
 }
 
@@ -63,20 +62,23 @@ bool PTVisitor::visitCastInst(CastInst &CI)
 bool PTVisitor::visitLoadInst(LoadInst &LI)
 {
   // 获取加载地址和加载值
-  Value *addr = LI.getPointerOperand();
-  Value *val = &LI;
+  Value_I *src = context->findValueI(LI.getPointerOperand());
+  Value_I *dst = context->findValueI(&LI);
 
-  // 如果加载值是指针类型
-  if (val->getType()->isPointerTy())
-  {
-    // 获取加载地址和加载值的指针
-    Pointer *addrPtr = getOrCreatePointer(addr);
-    Pointer *valPtr = getOrCreatePointer(val);
-
-    // 将加载地址的指针的指向集合赋值给加载值的指针
-    copyPointsToSet(addrPtr, valPtr);
+  // 如果加载值是指针类型, 获取加载地址和加载值的指针, 将加载地址的指针的指向集合赋值给加载值的指针
+  if (!src || !dst) {
+    return false;
   }
-
+  else {
+    bool result = false;
+    PointsTo *srcPtr = src->getPointsToSet();
+    PointsTo *dstPtr = dst->getPointsToSet();
+    for (auto &element : srcPtr->getSet())
+    {
+      result |= dstPtr->unionSets(element->getPointsToSet());
+    }
+    return result;
+  }
   return false;
 }
 
@@ -88,18 +90,22 @@ bool PTVisitor::visitLoadInst(LoadInst &LI)
 bool PTVisitor::visitStoreInst(StoreInst &SI)
 {
   // 获取存储地址和存储值
-  Value *addr = SI.getPointerOperand();
-  Value *val = SI.getValueOperand();
+  Value_I *src = context->findValueI(SI.getValueOperand());
+  Value_I *dst = context->findValueI(SI.getPointerOperand());
 
-  // 如果存储值是指针类型
-  if (val->getType()->isPointerTy())
-  {
-    // 获取存储地址和存储值的指针
-    Pointer *addrPtr = getOrCreatePointer(addr);
-    Pointer *valPtr = getOrCreatePointer(val);
-
-    // 将存储值的指针的指向集合加入到存储地址的指针的指向集合中
-    unionPointsToSet(addrPtr, valPtr);
+  // 如果存储值是指针类型, 获取存储地址和存储值的指针, 将存储值的指针的指向集合加入到存储地址的指针的指向集合中
+  if (!src || !dst) {
+    return false;
+  }
+  else {
+    bool result = false;
+    PointsTo *srcPtr = src->getPointsToSet();
+    PointsTo *dstPtr = dst->getPointsToSet();
+    for (auto &element : dstPtr->getSet())
+    {
+      result |= element->getPointsToSet()->unionSets(srcPtr);
+    }
+    return result;
   }
 
   return false;
@@ -113,32 +119,31 @@ bool PTVisitor::visitStoreInst(StoreInst &SI)
 bool PTVisitor::visitPHINode(PHINode &phi)
 {
   // 获取PhiNode自身的值和类型
-  Value *val = &phi;
-  Type *ty = phi.getType();
+  Value_I *val = context->findValueI(&phi);
 
   // 如果PhiNode自身是指针类型
-  if (ty->isPointerTy())
-  {
+  if (!val) {
+    return false;
+  } 
+  else {
+    bool result = false;
     // 获取PhiNode自身的指针
-    Pointer *valPtr = getOrCreatePointer(val);
+    PointsTo *valPtr = val->getPointsToSet();
 
     // 遍历所有可能输入值
     for (unsigned i = 0; i < phi.getNumIncomingValues(); i++)
     {
       // 获取输入值和类型
-      Value *inVal = phi.getIncomingValue(i);
-      Type *inTy = inVal->getType();
+      Value_I *inVal = context->findValueI(phi.getIncomingValue(i));
     
       // 如果输入值是指针类型
-      if (inTy->isPointerTy())
+      if (inVal)
       {
-        // 获取输入值的指针
-        Pointer *inPtr = getOrCreatePointer(inVal);
-    
-        // 将输入值的指针的指向集合加入到PhiNode自身的指针的指向集合中
-        unionPointsToSet(valPtr, inPtr);
+        // 获取输入值的指针, 将输入值的指针的指向集合加入到PhiNode自身的指针的指向集合中
+        result |= valPtr->unionSets(inVal->getPointsToSet());
       }
     }
+    return result;
   }
 
   return false;
@@ -152,40 +157,41 @@ bool PTVisitor::visitPHINode(PHINode &phi)
 bool PTVisitor::visitSelectInst(SelectInst &SI)
 {
   // 获取SelectInst自身的值和类型
-  Value *val = &SI;
-  Type *ty = SI.getType();
+  Value_I *val = context->findValueI(&SI);
 
   // 如果SelectInst自身是指针类型
-  if (ty->isPointerTy())
-  {
+  if (!val) {
+    return false;
+  }
+  else {
+    bool result = false;
     // 获取SelectInst自身的指针
-    Pointer *valPtr = getOrCreatePointer(val);
+    PointsTo *valPtr = val->getPointsToSet();
 
     // 获取两个可能选择值和类型
-    Value *trueVal = SI.getTrueValue();
-    Value *falseVal = SI.getFalseValue();
-    Type *trueTy = trueVal->getType();
-    Type *falseTy = falseVal->getType();
+    Value_I *trueVal = context->findValueI(SI.getTrueValue());
+    Value_I *falseVal = context->findValueI(SI.getFalseValue());
     
     // 如果真值是指针类型
-    if (trueTy->isPointerTy())
+    if (trueVal)
     {
       // 获取真值的指针
-      Pointer *truePtr = getOrCreatePointer(trueVal);
+      PointsTo *truePtr = trueVal->getPointsToSet();
     
       // 将真值的指针的指向集合加入到SelectInst自身的指针的指向集合中
-      unionPointsToSet(valPtr, truePtr);
+      result |= valPtr->unionSets(truePtr);
     }
     
     // 如果假值是指针类型
-    if (falseTy->isPointerTy())
+    if (falseVal)
     {
       // 获取假值的指针
-      Pointer *falsePtr = getOrCreatePointer(falseVal);
+      PointsTo *falsePtr = falseVal->getPointsToSet();
     
       // 将假值的指针的指向集合加入到SelectInst自身的指针的指向集合中
-      unionPointsToSet(valPtr, falsePtr);
+      result |= valPtr->unionSets(falsePtr);
     }
+    return result;
   }
 
   return false;
@@ -197,42 +203,15 @@ bool PTVisitor::visitSelectInst(SelectInst &SI)
  */
 bool PTVisitor::visitCallInst(CallInst &CI)
 {
-  // 获取调用函数和返回值
-  Function *func = CI.getCalledFunction();
-  Value *retVal = &CI;
-
-  // 如果调用函数是malloc或calloc
-  if (func && (func->getName() == "malloc" || func->getName() == "calloc"))
-  {
-    // 如果返回值是指针类型
-    if (retVal->getType()->isPointerTy())
-    {
-      // 获取返回值的指针
-      Pointer *retPtr = getOrCreatePointer(retVal);
-
-      // 创建一个新对象，并将其加入到返回值的指针的指向集合中
-      Object *obj = createObject(retVal);
-      addPointsToSet(retPtr, obj);
-    }
+  Alloc_I *src = context->findAllocI(&CI);
+  Value_I *dst = context->findValueI(&CI);
+  if (!src || !dst) {
+    return false;
   }
-
-  // 如果调用函数是free
-  if (func && func->getName() == "free")
-  {
-    // 获取第一个参数，即要释放内存的地址
-    Value *arg = CI.getArgOperand(0);
-
-    // 如果参数是指针类型
-    if (arg->getType()->isPointerTy())
-    {
-      // 获取参数的指针
-      Pointer *argPtr = getOrCreatePointer(arg);
-    
-      // 清空参数的指针的指向集合，表示释放了内存空间
-      clearPointsToSet(argPtr);
-    }
+  else {
+    PointsTo *dstPtr = dst->getPointsToSet();
+    return dstPtr->insert(src);
   }
-
   return false;
 }
 

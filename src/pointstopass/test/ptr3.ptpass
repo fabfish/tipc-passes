@@ -1,0 +1,110 @@
+*** Andersen points-to analysis for function define internal i64 @test(i64 %f, i64 %a) {
+entry:
+  %a2 = alloca i64, align 8
+  %f1 = alloca i64, align 8
+  store i64 %f, i64* %f1, align 4
+  store i64 %a, i64* %a2, align 4
+  %f3 = load i64, i64* %f1, align 4
+  %ptrIntVal = inttoptr i64 %f3 to i64*
+  %valueAt = load i64, i64* %ptrIntVal, align 4
+  %ftableidx = getelementptr inbounds [2 x i64 ()*], [2 x i64 ()*]* @_tip_ftable, i64 0, i64 %valueAt
+  %genfptr = load i64 ()*, i64 ()** %ftableidx, align 8
+  %castfptr = bitcast i64 ()* %genfptr to i64 (i64)*
+  %a4 = load i64, i64* %a2, align 4
+  %calltmp = call i64 %castfptr(i64 %a4)
+  ret i64 %calltmp
+}
+ ***
+  %castfptr = bitcast i64 ()* %genfptr to i64 (i64)* = {}
+i64 %a = {}
+  %genfptr = load i64 ()*, i64 ()** %ftableidx, align 8 = {}
+  %ftableidx = getelementptr inbounds [2 x i64 ()*], [2 x i64 ()*]* @_tip_ftable, i64 0, i64 %valueAt = {}
+i64 %f = {}
+  %ptrIntVal = inttoptr i64 %f3 to i64* = {}
+  %valueAt = load i64, i64* %ptrIntVal, align 4 = {}
+  %f3 = load i64, i64* %f1, align 4 = {}
+  %a2 = alloca i64, align 8 = {[a2], }
+  %calltmp = call i64 %castfptr(i64 %a4) = {}
+  %f1 = alloca i64, align 8 = {[f1], }
+  %a4 = load i64, i64* %a2, align 4 = {}
+[  %a2 = alloca i64, align 8] = {}
+[  %f1 = alloca i64, align 8] = {}
+*** Andersen points-to analysis for function define internal i64 @test2(i64 %g, i64 %b) {
+entry:
+  %b2 = alloca i64, align 8
+  %g1 = alloca i64, align 8
+  store i64 %g, i64* %g1, align 4
+  store i64 %b, i64* %b2, align 4
+  %g3 = load i64, i64* %g1, align 4
+  %ptrIntVal = inttoptr i64 %g3 to i64*
+  %valueAt = load i64, i64* %ptrIntVal, align 4
+  %ftableidx = getelementptr inbounds [2 x i64 ()*], [2 x i64 ()*]* @_tip_ftable, i64 0, i64 %valueAt
+  %genfptr = load i64 ()*, i64 ()** %ftableidx, align 8
+  %castfptr = bitcast i64 ()* %genfptr to i64 (i64)*
+  %b4 = load i64, i64* %b2, align 4
+  %calltmp = call i64 %castfptr(i64 %b4)
+  ret i64 %calltmp
+}
+ ***
+i64 %b = {}
+  %castfptr = bitcast i64 ()* %genfptr to i64 (i64)* = {}
+i64 %g = {}
+  %g3 = load i64, i64* %g1, align 4 = {}
+i64 %a = {}
+  %genfptr = load i64 ()*, i64 ()** %ftableidx, align 8 = {}
+  %ptrIntVal = inttoptr i64 %g3 to i64* = {}
+  %ftableidx = getelementptr inbounds [2 x i64 ()*], [2 x i64 ()*]* @_tip_ftable, i64 0, i64 %valueAt = {}
+  %valueAt = load i64, i64* %ptrIntVal, align 4 = {}
+  %g1 = alloca i64, align 8 = {[g1], }
+i64 %f = {}
+  %b2 = alloca i64, align 8 = {[b2], }
+  %ftableidx = getelementptr inbounds [2 x i64 ()*], [2 x i64 ()*]* @_tip_ftable, i64 0, i64 %valueAt = {}
+  %ptrIntVal = inttoptr i64 %f3 to i64* = {}
+  %genfptr = load i64 ()*, i64 ()** %ftableidx, align 8 = {}
+  %valueAt = load i64, i64* %ptrIntVal, align 4 = {}
+  %f3 = load i64, i64* %f1, align 4 = {}
+  %a2 = alloca i64, align 8 = {[a2], }
+  %castfptr = bitcast i64 ()* %genfptr to i64 (i64)* = {}
+  %b4 = load i64, i64* %b2, align 4 = {}
+  %calltmp = call i64 %castfptr(i64 %a4) = {}
+  %f1 = alloca i64, align 8 = {[f1], }
+  %a4 = load i64, i64* %a2, align 4 = {}
+  %calltmp = call i64 %castfptr(i64 %b4) = {}
+[  %g1 = alloca i64, align 8] = {}
+[  %b2 = alloca i64, align 8] = {}
+[  %a2 = alloca i64, align 8] = {}
+[  %f1 = alloca i64, align 8] = {}
+*** Andersen points-to analysis for function define i64 @_tip_main() {
+entry:
+  call void @_tip_main_undefined()
+  ret i64 0
+}
+ ***
+i64 %b = {}
+  %castfptr = bitcast i64 ()* %genfptr to i64 (i64)* = {}
+i64 %g = {}
+  %g3 = load i64, i64* %g1, align 4 = {}
+i64 %a = {}
+  %genfptr = load i64 ()*, i64 ()** %ftableidx, align 8 = {}
+  %ptrIntVal = inttoptr i64 %g3 to i64* = {}
+  %ftableidx = getelementptr inbounds [2 x i64 ()*], [2 x i64 ()*]* @_tip_ftable, i64 0, i64 %valueAt = {}
+  %valueAt = load i64, i64* %ptrIntVal, align 4 = {}
+  %g1 = alloca i64, align 8 = {[g1], }
+i64 %f = {}
+  %b2 = alloca i64, align 8 = {[b2], }
+  %ftableidx = getelementptr inbounds [2 x i64 ()*], [2 x i64 ()*]* @_tip_ftable, i64 0, i64 %valueAt = {}
+  %ptrIntVal = inttoptr i64 %f3 to i64* = {}
+  %genfptr = load i64 ()*, i64 ()** %ftableidx, align 8 = {}
+  %valueAt = load i64, i64* %ptrIntVal, align 4 = {}
+  %f3 = load i64, i64* %f1, align 4 = {}
+  %a2 = alloca i64, align 8 = {[a2], }
+  %castfptr = bitcast i64 ()* %genfptr to i64 (i64)* = {}
+  %b4 = load i64, i64* %b2, align 4 = {}
+  %calltmp = call i64 %castfptr(i64 %a4) = {}
+  %f1 = alloca i64, align 8 = {[f1], }
+  %a4 = load i64, i64* %a2, align 4 = {}
+  %calltmp = call i64 %castfptr(i64 %b4) = {}
+[  %g1 = alloca i64, align 8] = {}
+[  %b2 = alloca i64, align 8] = {}
+[  %a2 = alloca i64, align 8] = {}
+[  %f1 = alloca i64, align 8] = {}

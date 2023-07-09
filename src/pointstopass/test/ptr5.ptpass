@@ -1,0 +1,34 @@
+*** Andersen points-to analysis for function define i64 @_tip_main() {
+entry:
+  %d = alloca i64, align 8
+  %c = alloca i64, align 8
+  %b = alloca i64, align 8
+  %a = alloca i64, align 8
+  store i64 0, i64* %a, align 4
+  store i64 0, i64* %b, align 4
+  store i64 0, i64* %c, align 4
+  store i64 0, i64* %d, align 4
+  %addrOfPtr = ptrtoint i64* %d to i64
+  store i64 %addrOfPtr, i64* %c, align 4
+  %addrOfPtr1 = ptrtoint i64* %b to i64
+  store i64 %addrOfPtr1, i64* %a, align 4
+  %a2 = load i64, i64* %a, align 4
+  %ptrIntVal = inttoptr i64 %a2 to i64*
+  %c3 = load i64, i64* %c, align 4
+  store i64 %c3, i64* %ptrIntVal, align 4
+  ret i64 0
+}
+ ***
+  %a = alloca i64, align 8 = {[a], }
+  %b = alloca i64, align 8 = {[b], }
+  %addrOfPtr = ptrtoint i64* %d to i64 = {[d], }
+  %c3 = load i64, i64* %c, align 4 = {[d], }
+  %addrOfPtr1 = ptrtoint i64* %b to i64 = {[b], }
+  %c = alloca i64, align 8 = {[c], }
+  %d = alloca i64, align 8 = {[d], }
+  %a2 = load i64, i64* %a, align 4 = {[b], }
+  %ptrIntVal = inttoptr i64 %a2 to i64* = {[b], }
+[  %a = alloca i64, align 8] = {[b], }
+[  %b = alloca i64, align 8] = {[d], }
+[  %c = alloca i64, align 8] = {[d], }
+[  %d = alloca i64, align 8] = {}

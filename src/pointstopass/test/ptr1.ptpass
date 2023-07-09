@@ -1,0 +1,35 @@
+*** Andersen points-to analysis for function define internal i64 @test(i64 %p) {
+entry:
+  %q = alloca i64, align 8
+  %p1 = alloca i64, align 8
+  store i64 %p, i64* %p1, align 4
+  store i64 0, i64* %q, align 4
+  store i64 3, i64* %q, align 4
+  %p2 = load i64, i64* %p1, align 4
+  %ptrIntVal = inttoptr i64 %p2 to i64*
+  %valueAt = load i64, i64* %ptrIntVal, align 4
+  ret i64 %valueAt
+}
+ ***
+i64 %p = {}
+  %ptrIntVal = inttoptr i64 %p2 to i64* = {}
+  %valueAt = load i64, i64* %ptrIntVal, align 4 = {}
+  %q = alloca i64, align 8 = {[q], }
+  %p2 = load i64, i64* %p1, align 4 = {}
+  %p1 = alloca i64, align 8 = {[p1], }
+[  %q = alloca i64, align 8] = {}
+[  %p1 = alloca i64, align 8] = {}
+*** Andersen points-to analysis for function define i64 @_tip_main() {
+entry:
+  call void @_tip_main_undefined()
+  ret i64 0
+}
+ ***
+i64 %p = {}
+  %ptrIntVal = inttoptr i64 %p2 to i64* = {}
+  %valueAt = load i64, i64* %ptrIntVal, align 4 = {}
+  %q = alloca i64, align 8 = {[q], }
+  %p2 = load i64, i64* %p1, align 4 = {}
+  %p1 = alloca i64, align 8 = {[p1], }
+[  %q = alloca i64, align 8] = {}
+[  %p1 = alloca i64, align 8] = {}
