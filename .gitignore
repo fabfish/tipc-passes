@@ -3,3 +3,4 @@ build/*
 *.bc
 *.irpass
 .vscode
+REPORT.md
